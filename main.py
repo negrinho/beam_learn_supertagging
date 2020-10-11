@@ -89,6 +89,7 @@ tb_fs.create_folder(cfg["out_folder"],
 if '--train' in sys.argv:
     tb_io.write_jsonfile(cfg, cfg["out_folder"] + "/cfg.json")
 
+# The data is loaded from this folder after it has been processed by main_preprocess.py.
 if cfg["data_type"] == "supertagging":
     tags_key = "supertags"
     train_data = tb_io.read_jsonlogfile('data/supertagging/train.jsonl')

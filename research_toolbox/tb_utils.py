@@ -1,7 +1,6 @@
 import functools
 import inspect
 import pprint
-import pandas
 import itertools
 import numpy as np
 
@@ -117,6 +116,7 @@ def create_dict(ks, vs):
 
 
 def create_dataframe(ds, abort_if_different_keys=True):
+    import pandas
     ks = key_union(ds)
     assert (not abort_if_different_keys) or len(key_intersection(ds)) == len(ks)
 

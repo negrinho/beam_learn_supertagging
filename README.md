@@ -1,22 +1,26 @@
 
-Description
------------
-
 This repo contains the code to reproduce the results reported in the paper
-[An Empirical Investigation of Beam-Aware Training in Supertagging](???) to appear in EMNLP Findings 2020.
-This work explores how different choices for the meta-algorithm of [Negrinho et al (2018)](???) affect performance in a sequence labelling task (namely, supertagging on [CCGBank](https://catalog.ldc.upenn.edu/LDC2005T13)).
-The goal of this work was to explore when would be beam-aware training algorithms would soundly beat non-beam aware methods (e.g., the default approach of training on maximum likelihood and decoding with beam search).
-We have found several conditions under which this is the case, e.g., in a simulated online setting where the model does have access to complete sentence for tagging and therefore must manage uncertainty about prediction effectively.
+[An Empirical Investigation of Beam-Aware Training in Supertagging](https://arxiv.org/abs/2010.04980) to appear in EMNLP Findings 2020.
+This work explores how different choices for the meta-algorithm of [Negrinho et al (2018)](https://arxiv.org/abs/1811.00512), which appeared in NeurIPS 2018, affect performance in a sequence labelling task (namely, supertagging on [CCGBank](https://catalog.ldc.upenn.edu/LDC2005T13)).
+The goal of this work was to explore when beam-aware training algorithms would soundly beat non-beam aware methods (e.g., the default approach of training on maximum likelihood and decoding with beam search).
+We have found several conditions under which this is the case, e.g., in a simulated online setting where the model does have access to the complete sentence for tagging and therefore must manage uncertainty about prediction effectively.
 It is in these cases where we observe the largest performance differences to models that are not trained in a beam-aware manner, and therefore are bound to make unrecoverable mistakes resulting from their greediness.
 By learning the model in a beam-aware manner, the model is able to learn to use the beam to manage uncertainty about future predictions until there is additional information to resolve the uncertainty.
 
 Quickstart
 ----------
 
+First, create a Conda environment to work on the project:
+```
+conda create --name beam_learn python=2.7
+conda activate beam_learn
+python -m pip install dynet==2.1
+conda install psutil matplotlib paramiko
+```
+
 `main.py` is the main file containing the implementations of the algorithms.
 `main.py` is ran with a JSON configuration file.
 See below for the command to run a specific configuration file for training (`--train` flag; see `main.py` for other options, such as `--compute_vanilla_beam_accuracy` and `--compute_beam_accuracy` which are used to run vanilla beam search on a model trained with maximum likelihood, and to run beam search on a model that has been trained in a beam-aware manner, respectively).
-
 ```
 python -u main.py --dynet-mem 4000 --dynet-autobatch 1 --train --config_filepath PATH_TO_CONFIGURATION_FILE
 ```
@@ -25,13 +29,13 @@ The training data must first be processed to the format expected by the code.
 First download [CCGBank](https://catalog.ldc.upenn.edu/LDC2005T13)) from LDC (which requires access to LDC corpora, which your university might have a subscription for).
 After downloading the files, uncompress them into the folder `data/ccgbank_1_1`.
 After it is placed there, `main_preprocessing.py` can be ran to generate the data files needed for running the training code (i.e., `data/supertagging/train.jsonl`, `data/supertagging/dev.jsonl`, and `data/supertagging/test.jsonl`).
-See [here] for CONLL-2003 processed into this format for an example of how the resulting files should look like (due to licensing restrictions for the supertagging data).
+See [here](https://drive.google.com/file/d/1JoOEXbfYU8in5vJLsDZ4TvGpt8k3n31C/view?usp=sharing) for CONLL-2003 processed into this format for an example of how the resulting files should look like (due to licensing restrictions for the supertagging data).
 
 While the code was developed for supertagging, it should be easy to adapt for any sequence labelling task where the input and output sequences have the same length.
-The easiest way of accomplishing this is to process the data into the JSON line format (jsonl) which is used by the supertagging task.
-While supertagging was the only task for which we have presented results in the paper, other sequence labelling tasks are easy to consider, and we have included data processing scripts for CONLL-2000, CONLL-2003, and PTB in `dev/main_preprocessing.py`.
+The easiest way of accomplishing this is to process the data into the JSON line format (jsonl) which is used for the supertagging task.
+While supertagging was the only task for which we have presented results in the paper, other sequence labelling tasks are easy to consider and we have included data processing scripts for CONLL-2000, CONLL-2003, and PTB in `dev/main_preprocessing.py`.
 
-After the data is in place, the only step left to get the code into running condition is to generate the JSON configuration files that were used for the experiments in the paper.
+After the data is in place, the only step left to run `main.py` is to generate the JSON configuration files that were used for the experiments in the paper.
 These configuration files will live in the `configs` folder.
 The configuration files for the experiments in the paper are derived from a base configuration file `configs/cfgref.json` to reduce the amount of repetition and to make clear what aspects are being tested.
 The contents of that file are:
@@ -102,12 +106,13 @@ The relevant files to check in this case are `checkpoint.json` (regenerated at t
 
 `utils.sh` is used to help offload the computation of these configs to a remote server.
 In our workflow, we have used a SLURM managed cluster (namely, [Bridges](https://www.psc.edu/bridges)).
-Using this code for Bridges with your own account or for a another SLURM managed cluster should be a manner of changing the credentials in the file.
-These utilities work best with a SSH key, which makes removes the need to input the password with which connection to the server.
+Using this code for Bridges with your own account or for another SLURM managed cluster should be a manner of changing the credentials in the file.
+These utilities work best with an SSH key, which removes the need to input the password with each connection to the server.
 
 Finally, after having all the results for the configs of the form `configs/cfg_r*_*.json`, the results reported in the paper can be generated by running `main_results.py`.
 
 In summary, the steps to replicate the results in the paper are:
+- Create the Conda environment with the required packages.
 - Download [CCGBank](https://catalog.ldc.upenn.edu/LDC2005T13) from LDC, uncompress it, and place it in `data/ccgbank_1_1`.
 - Process raw CCGBank data by running `main_preprocessing.py`, which will create new files in a `data/supertagging` folder.
 - Generate the JSON configuration files by running `main_experiments.py`, which will create new files in `data/configs`.
@@ -116,30 +121,7 @@ In summary, the steps to replicate the results in the paper are:
 
 While both the configs and the results can be generated by running the code as described, the configs (which can be generated by running `main_experiments.py`) and the results (which can be generated with `main_results.py` after running all the configs with `main.py`) can be found for reference [here](https://drive.google.com/file/d/1evju00TaDsINF3CSK9DJthGMKFmvZ5L4/view?usp=sharing) and [here](https://drive.google.com/file/d/19f2V2On30UlbvmjnSHaJkgEaKOYs-sHh/view?usp=sharing), respectively.
 
-
-File description
-----------------
-
-* main.py
-Runs the training or evaluation code for a specific JSON configuration file. For example:
-```
-python -u main.py --dynet-mem 4000 --dynet-autobatch 1 --train --config_filepath configs/cfgref.json
-```
-
-* main_experiments.py:
-Generates of the JSON configs used in the paper.
-
-* main_preprocess.py:
-Preprocesses the raw CCGBank data to the JSON line format consumed by `main.py`.
-
-* main_results.py:
-Aggregates the results of running the configs of the paper.
-
-* utils.sh
-Helps interact with the remote cluster (SLURM-managed) to offload experiments to it (e.g., by transfering configuration files, submitting jobs, and transfering back the results).
-
-
-Citing this work:
+Citing this work
 -----------------
 
 If you use this code or build on the results of the this paper, please consider citing:

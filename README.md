@@ -3,7 +3,7 @@ This repo contains the code to reproduce the results reported in the paper
 [An Empirical Investigation of Beam-Aware Training in Supertagging](https://arxiv.org/abs/2010.04980) to appear in EMNLP Findings 2020.
 This work explores how different choices for the meta-algorithm of [Negrinho et al (2018)](https://arxiv.org/abs/1811.00512), which appeared in NeurIPS 2018, affect performance in a sequence labelling task (namely, supertagging on [CCGBank](https://catalog.ldc.upenn.edu/LDC2005T13)).
 The goal of this work was to explore when beam-aware training algorithms would soundly beat non-beam aware methods (e.g., the default approach of training on maximum likelihood and decoding with beam search).
-We have found several conditions under which this is the case, e.g., in a simulated online setting where the model does have access to the complete sentence for tagging and therefore must manage uncertainty about prediction effectively.
+We have found several conditions under which this is the case, e.g., in a simulated online setting where the model does not have access to the complete sentence for tagging and therefore must manage uncertainty about prediction effectively.
 It is in these cases where we observe the largest performance differences to models that are not trained in a beam-aware manner, and therefore are bound to make unrecoverable mistakes resulting from their greediness.
 By learning the model in a beam-aware manner, the model is able to learn to use the beam to manage uncertainty about future predictions until there is additional information to resolve the uncertainty.
 
